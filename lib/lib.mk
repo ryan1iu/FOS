@@ -1,9 +1,12 @@
-LIB_OBJFILES := obj/lib/entry.o \
+
+LIB_OBJFILES := obj/lib/console.o \
+				obj/lib/entry.o \
 				obj/lib/fork.o \
 				obj/lib/gomain.o \
 				obj/lib/pagefault.o \
 				obj/lib/pfentry.o \
 				obj/lib/printfmt.o \
+				obj/lib/readline.o \
 				obj/lib/string.o \
 				obj/lib/syscall.o \
 				obj/lib/uprintf.o

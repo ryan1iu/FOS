@@ -8,5 +8,5 @@ int vcprintf(const char *fmt, va_list ap);
 void printfmt(void (*putch)(int, void *), void *putdat, const char *fmt, ...);
 void vprintfmt(void (*putch)(int, void *), void *putdat, const char *fmt,
                va_list);
-
+char *readline(const char *prompt);
 #endif

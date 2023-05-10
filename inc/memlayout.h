@@ -89,11 +89,14 @@
 #define KSTKSIZE (8 * PGSIZE)  // size of a kernel stack
 #define KSTKGAP (8 * PGSIZE)   // size of a kernel stack guard
 
-// Memory-mapped IO.
-#define MMIOLIM (KSTACKTOP - PTSIZE)
-#define MMIOBASE (MMIOLIM - PTSIZE)
+// 磁盘meta表缓存
+// #define MMETA (KSTACKTOP - (PGSIZE << 4))
+// #define MMETABASE (MMETA - PGSIZE)
 
-#define ULIM (MMIOBASE)
+// 用来暂存从磁盘读取到的数据
+// #define DISKTEMP (MMETABASE - PGSIZE)
+
+#define ULIM (KERNBASE - (PTSIZE << 1))
 
 /*
  * User read-only mappings! Anything below here til UTOP are readonly to user.

@@ -54,3 +54,5 @@ int sys_setpfcall(pid_t pid, void *call) {
     // 注意不要传递指针
     return syscall(S_setpfcall, pid, (uint32_t)call, 0, 0, 0);
 }
+
+void sys_yield() { syscall(S_yield, 0, 0, 0, 0, 0); }

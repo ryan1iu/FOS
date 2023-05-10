@@ -1,4 +1,5 @@
 #include <inc/error.h>
+#include <inc/fs.h>
 #include <inc/kclock.h>
 #include <inc/mmu.h>
 #include <inc/pmap.h>
@@ -88,6 +89,10 @@ void mem_init(void) {
     // 申请Proc结构体数组空间
     procs = (struct Proc *)boot_alloc(NPROC * sizeof(struct Proc));
     memset(procs, 0, sizeof(struct Proc) * NPROC);
+
+    // 申请File结构体数组空间
+    file_meta_list = (struct File *)boot_alloc(NFILE * sizeof(struct File));
+    memset(file_meta_list, 0, sizeof(struct File) * NFILE);
 
     page_init();
 

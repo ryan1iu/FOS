@@ -71,7 +71,12 @@ void proc_init(void) {
 int proc_alloc(struct Proc **newproc_store, pid_t parent_id) {
     // 申请一个空闲进程
     struct Proc *p;
-    if (!(p = proc_free_list)) return -E_NO_FREE_PROC;
+    if (proc_free_list == NULL) {
+        cprintf("no free proc\n");
+        return -E_NO_FREE_PROC;
+    }
+
+    p = proc_free_list;
 
     // 初始化进程地址空间
     // 为进程申请一个页目录表
@@ -115,15 +120,17 @@ int proc_alloc(struct Proc **newproc_store, pid_t parent_id) {
     p->proc_tf.tf_ss = GD_UD | 3;
     p->proc_tf.tf_esp = USTACKTOP;
     p->proc_tf.tf_cs = GD_UT | 3;
-    // p->proc_tf.tf_eflags |= FL_IF;
+    p->proc_tf.tf_eflags |= FL_IF;
 
     // Clear the page fault handler until user installs one.
     // p->proc_pgfault_upcall = 0;
 
     proc_free_list = p->proc_link;
+    p->proc_link = NULL;
+
     *newproc_store = p;
 
-    cprintf("new proc %d\n", p->proc_id);
+    // cprintf("new proc %d\n", p->proc_id);
     return 0;
 }
 
@@ -258,16 +265,15 @@ void proc_destroy(struct Proc *p) {
     p->proc_link = proc_free_list;
     proc_free_list = p;
 
+    cprintf("destory %d success\n", proc_free_list->proc_id);
     // cprintf("free proc %d success\n", p->proc_id);
-    if (curproc == p) {
-        curproc = NULL;
-        sched_yield();
-    }
+    sched_yield();
 }
 
 //
-// Restores the register values in the Trapframe with the 'iret' instruction.
-// This exits the kernel and starts executing some Procironment's code.
+// Restores the register values in the Trapframe with the 'iret'
+// instruction. This exits the kernel and starts executing some
+// Procironment's code.
 //
 void proc_pop_tf(struct Trapframe *tf) {
     asm volatile(

@@ -32,6 +32,7 @@ enum {
     S_setstatus,
     S_allocpage,
     S_fork,
+    S_yield,
     S_unkown
 };
 
@@ -39,6 +40,7 @@ void sys_puts(const char *string, size_t len);
 int sys_getc(void);
 pid_t sys_getpid(void);
 int sys_destoryproc(pid_t);
+void sys_yield();
 
 pid_t fork();
 // fork原语
@@ -54,5 +56,8 @@ static inline pid_t sys_fork(void) {
     return ret;
 }
 void pf_set(void(*handler));
+
+int getchar();
+void putchar(int c);
 
 #endif

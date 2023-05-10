@@ -33,5 +33,6 @@ static uint8_t cursor_y;
 void console_init(void);
 
 void console_putc(int c, uint8_t color);
+int console_getc();
 
 #endif

@@ -40,6 +40,8 @@ TRAPHANDLER(alignment_check_handler, T_ALIGN)
 TRAPHANDLER_NOEC(machine_check_handler, T_MCHK)
 TRAPHANDLER_NOEC(simd_floating_point_error_handler, T_SIMDERR)
 TRAPHANDLER_NOEC(syscall_handler, T_SYSCALL)
+TRAPHANDLER_NOEC(timer_handler, IRQ_OFFSET + IRQ_TIMER)
+TRAPHANDLER_NOEC(kbd_handler, IRQ_OFFSET + IRQ_KBD)
 
  _alltraps:
 // push ds and es and general registers

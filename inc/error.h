@@ -8,6 +8,7 @@ enum {
     E_NO_MEM,           // 内存不足
     E_NO_FREE_PROC,     // PROC申请数量已达上限
     E_FAULT,            // Memory fault
+    E_FILE_NF,          // 文件不存在
 
     MAXERROR
 };

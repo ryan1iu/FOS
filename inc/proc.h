@@ -4,12 +4,12 @@
 #include <inc/trap.h>
 #include <inc/types.h>
 
-typedef uint32_t pid_t;
+typedef int32_t pid_t;
 extern struct Proc *procs;    // 所有的进程
 extern struct Proc *curproc;  // 当前占据CPU的进程
 extern struct Segdesc gdt[];  // 全局描述符表
 
-#define NPROC 128  // 最多同时运行的进程个数
+#define NPROC 1024  // 最多同时运行的进程个数
 // 进程结构体定义
 struct Proc {
     pid_t proc_id;

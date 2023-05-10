@@ -1,15 +1,19 @@
 #include <inc/assert.h>
 #include <inc/error.h>
+#include <inc/keybd.h>
 #include <inc/memlayout.h>
 #include <inc/pfhandler.h>
 #include <inc/pmap.h>
 #include <inc/proc.h>
+#include <inc/sched.h>
 #include <inc/stdio.h>
 #include <inc/syscall.h>
 
+#include "inc/console.h"
+
 static void sys_puts(const char *s, size_t len) { cprintf("%.*s", len, s); }
 
-static int sys_getc(void) { return 'e'; }
+static int sys_getc(void) { return kbd_getc(); }
 
 static pid_t sys_getpid(void) { return curproc->proc_id; }
 
@@ -19,7 +23,14 @@ static pid_t sys_getpid(void) { return curproc->proc_id; }
 static int sys_destoryproc(pid_t pid) {
     int r;
     struct Proc *p;
-    p = &procs[pid - 1];
+    if (pid > NPROC) {
+        panic("invalid pid: %d", pid);
+    }
+    if (pid == 0) {
+        p = curproc;
+    } else {
+        p = &procs[pid - 1];
+    }
 
     // if (p == curproc)
     //     cprintf("proc %d exit\n", curproc->proc_id);
@@ -29,13 +40,15 @@ static int sys_destoryproc(pid_t pid) {
     return 0;
 }
 
+static void sys_yield() { sched_yield(); }
+
 //
 // 设置进程的page fault处理函数
 //
 static int sys_setpfcall(pid_t pid, void *call) {
     struct Proc *proc;
     if (pid > NPROC) {
-        panic("invalid pid");
+        panic("invalid pid: %d", pid);
     }
     proc = &procs[pid - 1];
     proc->proc_pfcall = call;
@@ -51,7 +64,7 @@ static int sys_allocpage(pid_t pid, void *va, int perm) {
     struct Proc *proc;
 
     if (pid > NPROC) {
-        panic("invalid pid");
+        panic("invalid pid: %d", pid);
     }
 
     if (pid == 0) {
@@ -101,10 +114,10 @@ static int sys_mappage(pid_t srcpid, void *src_va, pid_t dstpid, void *dst_va,
                        int perm) {
     // 检查pid的合法性
     if (srcpid > NPROC) {
-        panic("invalid srcpid");
+        panic("invalid srcpid: %d", srcpid);
     }
     if (dstpid > NPROC) {
-        panic("invalid dstpid");
+        panic("invalid dstpid: %u", dstpid);
     }
     struct Proc *srcproc;
     struct Proc *dstproc;
@@ -256,6 +269,10 @@ int32_t syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3,
             break;
         case S_setstatus:
             return sys_setstatus((pid_t)a1, (int)a2);
+            break;
+        case S_yield:
+            sys_yield();
+            return 0;
             break;
         default:
             return -E_INVAL;

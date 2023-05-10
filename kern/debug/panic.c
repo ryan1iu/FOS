@@ -1,6 +1,5 @@
 #include <inc/assert.h>
-
-#include "inc/monitor.h"
+#include <inc/monitor.h>
 
 void _panic(const char *file, int line, const char *fmt, ...) {
     va_list ap;
@@ -14,5 +13,5 @@ void _panic(const char *file, int line, const char *fmt, ...) {
     cprintf("\n");
     va_end(ap);
     /* break into the kernel monitor */
-    while (1) readline();
+    while (1) readline(" ");
 }

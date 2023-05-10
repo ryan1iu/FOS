@@ -2,7 +2,7 @@
 #include <inc/monitor.h>
 #include <inc/stdio.h>
 
-void monitor() {
+void plogo() {
     cprintf(" ____  __   ____ \n");
     cprintf("(  __)/  \\ / ___)\n");
     cprintf(" ) _)(  O )\\___ \\\n");
@@ -10,9 +10,8 @@ void monitor() {
     cprintf("\n");
 }
 
-void readline() {
-    console_putc('$', COLOR_LIGHT_GREEN);
-    console_putc(' ', COLOR_BLACK);
+void monitor() {
     while (1) {
+        readline(" ");
     }
 }

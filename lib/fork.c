@@ -81,6 +81,7 @@ pid_t fork(void) {
 
     if (child_pid < 0) {
         cprintf("sys_fork failed");
+        return -1;
     }
 
     if (child_pid == 0) {

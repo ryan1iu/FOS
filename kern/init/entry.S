@@ -6,21 +6,10 @@
 # RELOC(x) 用来将 x 从链接地址转换为加载地址
 # 通过采用临时的分页机制，将虚拟地址空间中的0x00000000到0x00400000以及
 # 0xf0000000到0xf0400000映射到从0x00000000到0x00400000的物理地址空间
+
 #define	RELOC(x) ((x) - KERNBASE)
 
-#define SRL(val, shamt)		(((val) >> (shamt)) & ~(-1 << (32 - (shamt))))
-#define MULTIBOOT_HEADER_MAGIC (0x1BADB002)
-#define MULTIBOOT_HEADER_FLAGS (0)
-#define CHECKSUM (-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS))
-
-
 .text
-# The Multiboot header
-.align 4
-.long MULTIBOOT_HEADER_MAGIC
-.long MULTIBOOT_HEADER_FLAGS
-.long CHECKSUM
-
 # entry point
 # 因为刚进入内核时还没有开启映射，所以内核运行在“物理地址”上，
 # 需要将入口地址转为物理地址，并设置链接选项

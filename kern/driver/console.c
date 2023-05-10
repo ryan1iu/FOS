@@ -1,4 +1,5 @@
 #include <inc/console.h>
+#include <inc/keybd.h>
 #include <inc/stdio.h>
 
 static void move_cursor() {
@@ -88,6 +89,19 @@ static void clear_screen() {
     move_cursor();
 }
 
-void console_init() { clear_screen(); }
+void console_init() {
+    // 清空屏幕
+    clear_screen();
+    // 初始化键盘驱动
+    kbd_init();
+}
 
 void console_putc(int c, uint8_t color) { vga_putc(c, color); }
+
+int console_getc() {
+    int c;
+
+    while ((c = kbd_getc()) == 0)
+        ;
+    return c;
+}
