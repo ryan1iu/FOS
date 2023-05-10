@@ -11,10 +11,10 @@
 // physical page number field of address
 #define PGNUM(la) (((uintptr_t)(la)) >> PTXSHIFT)
 
-// page directory index
+// 获取虚拟地址la所对应的页目录索引
 #define PDX(la) ((((uintptr_t)(la)) >> PDXSHIFT) & 0x3FF)
 
-// page table index
+// 获取虚拟地址la所对应的页表索引
 #define PTX(la) ((((uintptr_t)(la)) >> PTXSHIFT) & 0x3FF)
 
 // offset in page
@@ -36,6 +36,7 @@
 #define PTXSHIFT 12  // offset of PTX in a linear address
 #define PDXSHIFT 22  // offset of PDX in a linear address
 
+#define PTE_COW 0x800
 // Page table/directory entry flags.
 #define PTE_P \
     0x001  // 表示页面在物理内存中，如果页面被调用但不存在会导致Page Fault

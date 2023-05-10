@@ -31,13 +31,14 @@ KERN_USERFILES := obj/user/hello \
 				  obj/user/fork \
 				  obj/user/mpadd \
 				  obj/user/spin \
-				  obj/user/testkd 
+				  obj/user/testkd \
+				  obj/user/getfid
+					
 
-obj/kern/kernel.img: obj/kern/kernel obj/boot/boot obj/user/
+obj/kern/kernel.img: obj/kern/kernel obj/boot/boot obj/user/ obj/disk/user_disk.img
 	dd if=/dev/zero of=obj/kern/kernel.img~ count=10000
 	dd if=obj/boot/boot of=obj/kern/kernel.img~ conv=notrunc
 	dd if=obj/kern/kernel of=obj/kern/kernel.img~ seek=1 conv=notrunc
-	dd if=obj/user/user_disk of=obj/user/user_disk.img seek=1 conv=notrunc
 	mv obj/kern/kernel.img~ obj/kern/kernel.img
 
 obj/kern/%.o: kern/debug/%.c
@@ -72,6 +73,11 @@ obj/kern/%.o: lib/%.c
 
 obj/kern/kernel: $(KERN_OBJFILES) $(KERN_USERFILES) kern/kern.ld
 	$(LD) -o $@ $(KERN_LDFLAGS) $(KERN_OBJFILES) $(GCC_LIB) -b binary $(KERN_USERFILES)  
+
+obj/disk/user_disk.img: obj/user
+	tools/wdisk
+	dd if=obj/disk/user_disk of=obj/disk/user_disk.img seek=1 conv=notrunc
+
 
 
 

@@ -21,6 +21,8 @@ typedef uint32_t physaddr_t;
 typedef uint32_t pte_t;
 typedef uint32_t pde_t;
 
+typedef int32_t fid_t;
+
 typedef uint32_t ppn_t;
 
 typedef uint32_t size_t;

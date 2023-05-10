@@ -7,7 +7,7 @@ AS := as
 AR := ar
 LD := ld
 
-CFLAGS := -O1 -fno-builtin -fno-tree-ch -I$(TOP) -MD
+CFLAGS := -O1 -fno-builtin -fno-tree-ch -I$(TOP) 
 CFLAGS += -fno-omit-frame-pointer
 CFLAGS += -std=gnu99
 CFLAGS += -static
@@ -30,7 +30,7 @@ include boot/boot.mk
 
 QEMU := /usr/local/bin/qemu-system-i386
 QEMUOPTS = -drive file=obj/kern/kernel.img,index=0,media=disk,format=raw -m 128 -serial mon:stdio -gdb tcp::$(GDBPORT)
-QEMUOPTS += -drive file=obj/user/user_disk.img,index=1,media=disk,format=raw
+QEMUOPTS += -drive file=obj/disk/user_disk.img,index=1,media=disk,format=raw
 
 gdb:
 	gdb -n -tui -x .gdbinit
@@ -51,3 +51,4 @@ clean:
 	rm -f obj/kern/*
 	rm -f obj/user/*
 	rm -f obj/lib/*
+	rm -f obj/boot/*

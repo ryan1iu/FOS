@@ -80,8 +80,6 @@ void mem_init(void) {
     kern_pgdir = (pde_t *)boot_alloc(PGSIZE);
     memset(kern_pgdir, 0, PGSIZE);
 
-    kern_pgdir[PDX(UVPT)] = PADDR(kern_pgdir) | PTE_U | PTE_P;
-
     // 申请Page结构体数组空间
     pages = (struct Page *)boot_alloc(npages * sizeof(struct Page));
     memset(pages, 0, npages * sizeof(struct Page));
@@ -94,15 +92,10 @@ void mem_init(void) {
     file_meta_list = (struct File *)boot_alloc(NFILE * sizeof(struct File));
     memset(file_meta_list, 0, sizeof(struct File) * NFILE);
 
+    void *disktemp = (void *)boot_alloc(PTSIZE);
+
     page_init();
-
-    map_region(kern_pgdir, UPAGES,
-               ROUNDUP(npages * sizeof(struct Page), PGSIZE), PADDR(pages),
-               PTE_U);
-
-    map_region(kern_pgdir, UENVS,
-               ROUNDUP((sizeof(struct Proc) * NPROC), PGSIZE), PADDR(procs),
-               PTE_U);
+    map_region(kern_pgdir, KTEMP, PTSIZE, PADDR(disktemp), PTE_W);
 
     map_region(kern_pgdir, KSTACKTOP - KSTKSIZE, KSTKSIZE, PADDR(bootstack),
                PTE_W);

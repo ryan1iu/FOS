@@ -2,11 +2,15 @@
 #include <inc/memlayout.h>
 #include <inc/mmu.h>
 #include <inc/pfhandler.h>
+#include <inc/pmap.h>
 #include <inc/proc.h>
+#include <inc/stdio.h>
+#include <inc/string.h>
 #include <inc/x86.h>
 
 void handle_pgfault(struct Trapframe *tf) {
     uint32_t fault_va;
+    uint32_t error = tf->tf_err;
 
     fault_va = rcr2();
 
@@ -15,30 +19,24 @@ void handle_pgfault(struct Trapframe *tf) {
         panic("page fault in kernel! falut_va:%x\n", fault_va);
     }
 
-    struct UTrapframe *frame;
-    uintptr_t stack_top;
-    stack_top = tf->tf_esp;
-    if (stack_top > UXSTACKTOP - PGSIZE && stack_top < UXSTACKTOP) {
-        // 说明page fault发生在upcall中
-        frame =
-            (struct UTrapframe *)(stack_top - sizeof(struct UTrapframe) - 4);
+    pte_t *pte;
+    pte = va2pte(curproc->proc_pgdir, (const void *)fault_va, 0);
+    if (pte == NULL) {
+        cprintf("invalid address %x\n", fault_va);
+    } else if (!(error & FEC_WR) || !(*pte & PTE_COW)) {
+        cprintf("fault isn't FEC_WR");
     } else {
-        frame = (struct UTrapframe *)(UXSTACKTOP - sizeof(struct UTrapframe));
-    }
+        struct Page *new_page = ppage_alloc(1);
+        vpage_insert(curproc->proc_pgdir, new_page, (void *)PFTEMP,
+                     PTE_P | PTE_U | PTE_W);
 
-    if (curproc->proc_pfcall) {
-        frame->utf_fault_va = fault_va;
-        frame->utf_err = tf->tf_err;
-        frame->utf_regs = tf->tf_regs;
-        frame->utf_eip = tf->tf_eip;
-        frame->utf_eflags = tf->tf_eflags;
-        frame->utf_esp = tf->tf_esp;
+        fault_va = ROUNDDOWN(fault_va, PGSIZE);
+        memcpy((void *)PFTEMP, (void *)fault_va, PGSIZE);
 
-        // 修改eip使得函数返回到page fault处理函数中
-        curproc->proc_tf.tf_eip = (uintptr_t)curproc->proc_pfcall;
+        vpage_insert(curproc->proc_pgdir, new_page, (void *)fault_va,
+                     PTE_P | PTE_W | PTE_U);
+        vpage_remove(curproc->proc_pgdir, (void *)PFTEMP);
 
-        // 修改esp以使处理函数运行在异常栈中
-        curproc->proc_tf.tf_esp = (uintptr_t)frame;
         proc_run(curproc);
     }
 

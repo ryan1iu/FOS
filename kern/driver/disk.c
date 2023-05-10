@@ -1,5 +1,6 @@
 #include <inc/assert.h>
 #include <inc/disk.h>
+#include <inc/irq.h>
 #include <inc/stdio.h>
 #include <inc/x86.h>
 
@@ -66,7 +67,6 @@ int ide_read(uint32_t secno, void *dst, size_t nsecs) {
 
 int ide_write(uint32_t secno, const void *src, size_t nsecs) {
     int r;
-
     assert(nsecs <= 256);
 
     ide_wait_ready(0);

@@ -44,14 +44,14 @@ int main(int argc, char* argv[]) {
 
     // Create disk image file.
     FILE* image_file;
-    if ((image_file = fopen("/home/ryan/fos/obj/user/user_disk", "w+")) == 0) {
+    if ((image_file = fopen("/home/ryan/fos/obj/disk/user_disk", "w+")) == 0) {
         printf("create image file failed");
         exit(1);
     }
 
     char char_end = '\0';
 
-    uint32_t sector_index = 6;
+    uint32_t sector_index = 10;
     uint8_t zero = 0;
     int file_size[num];
     int file_data_offsets[num];
@@ -78,9 +78,11 @@ int main(int argc, char* argv[]) {
         fwrite(&magic, sizeof(uint8_t), 1, image_file);
         // 写入文件名
         fwrite(file_name, sizeof(char), strlen(file_name), image_file);
-
         // 剩下的部分用'\n'填充
         fwrite(&zero, sizeof(char), 64 - strlen(file_name), image_file);
+
+        // 写入文件id
+        fwrite(&i, sizeof(uint8_t), 1, image_file);
 
         // 写入所在扇区
         fwrite(&sector_index, sizeof(int), 1, image_file);
@@ -92,7 +94,7 @@ int main(int argc, char* argv[]) {
     }
 
     // meta 信息占用四个扇区，多余的区域用0填充
-    int meta_size = num * (1 + 64 + 4 + 4);
+    int meta_size = num * (1 + 1 + 64 + 4 + 4);
     int defsize = 4096 - meta_size;
     fwrite((void*)&zero, sizeof(uint8_t), defsize, image_file);
 

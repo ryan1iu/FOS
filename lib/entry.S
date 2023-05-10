@@ -1,19 +1,7 @@
 #include <inc/mmu.h>
 #include <inc/memlayout.h>
 
-.data
-	.globl procs
-	.set envs, UENVS
-	.globl pages
-	.set pages, UPAGES
-	.globl uvpt
-	.set uvpt, UVPT
-	.globl uvpd
-	.set uvpd, (UVPT+(UVPT>>12)*4)
 
-
-// Entrypoint - this is where the kernel (or our parent environment)
-// starts us running when we are initially loaded into a new environment.
 .text
 .globl _start
 _start:
@@ -21,9 +9,6 @@ _start:
 	cmpl $USTACKTOP, %esp
 	jne args_exist
 
-	// If not, push dummy argc/argv arguments.
-	// This happens when we are loaded by the kernel,
-	// because the kernel does not know about passing arguments.
 	pushl $0
 	pushl $0
 

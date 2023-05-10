@@ -75,12 +75,8 @@
  *     there if desired.  JOS user programs map pages temporarily at UTEMP.
  */
 
-// All physical memory mapped at this address
 #define KERNBASE 0xF0000000
 
-// At IOPHYSMEM (640K) there is a 384K hole for I/O.  From the kernel,
-// IOPHYSMEM can be addressed at KERNBASE + IOPHYSMEM.  The hole ends
-// at physical address EXTPHYSMEM.
 #define IOPHYSMEM 0x0A0000
 #define EXTPHYSMEM 0x100000
 
@@ -89,37 +85,11 @@
 #define KSTKSIZE (8 * PGSIZE)  // size of a kernel stack
 #define KSTKGAP (8 * PGSIZE)   // size of a kernel stack guard
 
-// 磁盘meta表缓存
-// #define MMETA (KSTACKTOP - (PGSIZE << 4))
-// #define MMETABASE (MMETA - PGSIZE)
+// 用来暂存从磁盘读取的文件
+#define KTEMP (KERNBASE - 2 * PTSIZE)
 
-// 用来暂存从磁盘读取到的数据
-// #define DISKTEMP (MMETABASE - PGSIZE)
+#define UTOP (KTEMP - PTSIZE)
 
-#define ULIM (KERNBASE - (PTSIZE << 1))
-
-/*
- * User read-only mappings! Anything below here til UTOP are readonly to user.
- * They are global pages mapped in at env allocation time.
- */
-
-// User read-only virtual page table (see 'uvpt' below)
-#define UVPT (ULIM - PTSIZE)
-// Read-only copies of the Page structures
-#define UPAGES (UVPT - PTSIZE)
-// Read-only copies of the global env structures
-#define UENVS (UPAGES - PTSIZE)
-
-/*
- * Top of user VM. User can manipulate VA from UTOP-1 and down!
- */
-
-// Top of user-accessible VM
-#define UTOP UENVS
-// Top of one-page user exception stack
-#define UXSTACKTOP UTOP
-// Next page left invalid to guard against exception stack overflow; then:
-// Top of normal user stack
 #define USTACKTOP (UTOP - 2 * PGSIZE)
 
 // Where user programs generally begin
@@ -127,13 +97,10 @@
 
 // Used for temporary page mappings.  Typed 'void*' for convenience
 #define UTEMP ((void *)PTSIZE)
-// Used for temporary page mappings for the user page-fault handler
-// (should not conflict with other temporary page mappings)
+
 #define PFTEMP (UTEMP + PTSIZE - PGSIZE)
-// The location of the user-level STABS data structure
-#define USTABDATA (PTSIZE / 2)
 
 #ifndef __ASSEMBLER__
 
-#endif /* !__ASSEMBLER__ */
-#endif /* !OS_INC_MEMLAYOUT_H */
+#endif
+#endif

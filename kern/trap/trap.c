@@ -8,11 +8,10 @@
 #include <inc/pfhandler.h>
 #include <inc/proc.h>
 #include <inc/sched.h>
+#include <inc/stdio.h>
 #include <inc/syscall.h>
 #include <inc/trap.h>
 #include <inc/x86.h>
-
-#include "inc/stdio.h"
 
 // task state segment
 static struct Taskstate ts;
@@ -78,7 +77,7 @@ void trap_init(void) {
     // 注意这里将DPL设为3，即用户级别
     SETGATE(idt[T_SYSCALL], 0, GD_KT, syscall_handler, 3);
     SETGATE(idt[IRQ_OFFSET + IRQ_TIMER], 0, GD_KT, timer_handler, 0);
-    SETGATE(idt[IRQ_OFFSET + IRQ_KBD], 1, GD_KT, kbd_handler, 0);
+    SETGATE(idt[IRQ_OFFSET + IRQ_KBD], 0, GD_KT, kbd_handler, 0);
 
     // 加载IDT
     lidt(&idt_pd);
@@ -86,6 +85,7 @@ void trap_init(void) {
 
 void print_trapframe(struct Trapframe *tf) {
     cprintf(">>>goto trap %d\n", tf->tf_trapno);
+    cprintf("  err  0x%08x", tf->tf_err);
 }
 
 void trap(struct Trapframe *tf) {

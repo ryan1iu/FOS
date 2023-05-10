@@ -18,7 +18,6 @@ struct Proc {
     struct Trapframe proc_tf;  // 进程上下文环境
     struct Proc *proc_link;
     pde_t *proc_pgdir;  // 进程页目录的内核虚拟地址
-    void *proc_pfcall;
 };
 
 enum {

@@ -96,13 +96,10 @@ int proc_alloc(struct Proc **newproc_store, pid_t parent_id) {
     // 设置进程页目录的内核虚拟地址
     p->proc_pgdir = (pde_t *)(page2kva(pgdir));
 
-    p->proc_pgdir[PDX(UVPT)] = PADDR(p->proc_pgdir) | PTE_P | PTE_U;
-
     // 初始化进程id为其在procs中的index
     p->proc_id = (p - procs) + 1;
     p->proc_parent_id = parent_id;
     p->proc_status = PROC_RUNABLE;
-    p->proc_pfcall = NULL;
 
     // 清理残留的上下文环境
     memset(&p->proc_tf, 0, sizeof(p->proc_tf));
@@ -120,17 +117,15 @@ int proc_alloc(struct Proc **newproc_store, pid_t parent_id) {
     p->proc_tf.tf_ss = GD_UD | 3;
     p->proc_tf.tf_esp = USTACKTOP;
     p->proc_tf.tf_cs = GD_UT | 3;
-    p->proc_tf.tf_eflags |= FL_IF;
 
-    // Clear the page fault handler until user installs one.
-    // p->proc_pgfault_upcall = 0;
+    // 设置IF以允许外部中断
+    p->proc_tf.tf_eflags |= FL_IF;
 
     proc_free_list = p->proc_link;
     p->proc_link = NULL;
 
     *newproc_store = p;
 
-    // cprintf("new proc %d\n", p->proc_id);
     return 0;
 }
 
@@ -190,7 +185,7 @@ static void load_icode(struct Proc *p, uint8_t *binary) {
     // 加载完毕，切换到内核地址空间
     lcr3(PADDR(kern_pgdir));
 
-    // 申请栈和异常栈空间
+    // 申请栈空间
     struct Page *stack_page = ppage_alloc(1);
     if (!stack_page) {
         panic("out of memory when alloc process stack");
@@ -198,15 +193,6 @@ static void load_icode(struct Proc *p, uint8_t *binary) {
     if (vpage_insert(p->proc_pgdir, stack_page, (char *)(USTACKTOP - PGSIZE),
                      PTE_W | PTE_U | PTE_P) < 0) {
         panic("failed to set process stack");
-    }
-
-    struct Page *xstack_page = ppage_alloc(1);
-    if (!xstack_page) {
-        panic("out of memory when alloc process exception stack");
-    }
-    if (vpage_insert(p->proc_pgdir, xstack_page, (char *)(UXSTACKTOP - PGSIZE),
-                     PTE_P | PTE_U | PTE_W) < 0) {
-        panic("failed to set process exception stack");
     }
 }
 

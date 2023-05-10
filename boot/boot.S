@@ -11,7 +11,7 @@
 .globl start
 start:
   .code16                     # 指示汇编器以实模式方式工作
-  cli                         # 关闭中断
+  cli                         # 关闭外部中断
   cld                         # 设置DF=0，字符操作递增
 
   # 将ds,es,ss置零

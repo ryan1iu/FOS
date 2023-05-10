@@ -29,30 +29,10 @@ int sys_destoryproc(pid_t pid) {
 // 获取pid
 pid_t sys_getpid(void) { return syscall(S_getpid, 0, 0, 0, 0, 0); }
 
-//
-//-------------fork原语--------------------
-//
-int sys_mappage(pid_t src_proc, void *src_va, pid_t dst_proc, void *dst_va,
-                int perm) {
-    return syscall(S_mappage, src_proc, (uint32_t)src_va, dst_proc,
-                   (uint32_t)dst_va, perm);
-}
-
-int sys_umappage(pid_t pid, void *va) {
-    return syscall(S_umappage, pid, (uint32_t)va, 0, 0, 0);
-}
-
-int sys_allocpage(pid_t pid, void *va, int perm) {
-    return syscall(S_allocpage, pid, (uint32_t)va, perm, 0, 0);
-}
-
-int sys_setstatus(pid_t pid, int st) {
-    return syscall(S_setstatus, pid, st, 0, 0, 0);
-}
-
-int sys_setpfcall(pid_t pid, void *call) {
-    // 注意不要传递指针
-    return syscall(S_setpfcall, pid, (uint32_t)call, 0, 0, 0);
-}
-
+// 主动出让处理器
 void sys_yield() { syscall(S_yield, 0, 0, 0, 0, 0); }
+
+// 获取fid
+fid_t sys_getfid(const char *file) {
+    return syscall(S_getfid, (uint32_t)file, 0, 0, 0, 0);
+}
